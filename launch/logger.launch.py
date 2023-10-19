@@ -4,7 +4,12 @@ from launch_ros.actions import Node
 def generate_launch_description():
 
     # Mavros 
-    plugins = ["global_position", "param", "waypoint", "sys_status", "altitude", "command", "manual_control", "imu", "vfr_hud", "setpoint_raw", "gps_status", "home_position"]
+    # setpoint_position
+    # local_position
+    # home_position
+    # gps_status
+    # global_position
+    plugins = ["local_position", "param", "waypoint", "sys_status", "altitude", "command", "manual_control", "imu", "setpoint_raw", "rc_io"]
     mavros_params = [{
         "fcu_url": "udp://:14550@:18570",
         "plugin_allowlist": plugins,
