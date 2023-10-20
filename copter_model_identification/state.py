@@ -1,4 +1,5 @@
 from nav_msgs.msg import Odometry
+from mavros_msgs.msg import RCIn, RCOut
 from geometry_msgs.msg import Vector3
 
 class Timer:
@@ -12,6 +13,12 @@ class RC:
         self.z = 0
         self.r = 0
     
+    def from_rc_msg(self, rc) -> None:
+        self.x = rc.channels[0]
+        self.x = rc.channels[1]
+        self.x = rc.channels[2]
+        self.x = rc.channels[3]
+
     def to_string(self) -> str:
         return "{} {} {} {}".format(self.x, self.y, self.z, self.r)
 
@@ -31,7 +38,8 @@ class State():
     
     def rpy_from_odom(self, odom : Odometry) -> Vector3:
         # TODO
-        return Vector3()
+        rpy = Vector3()
+        return rpy
 
     def from_odom(self, odom) -> None:
         self.position = self.position_from_odom(odom)

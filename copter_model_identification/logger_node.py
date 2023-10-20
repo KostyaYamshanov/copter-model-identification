@@ -1,9 +1,11 @@
 from rclpy.node import Node
 from rclpy.qos import *
-
 from mavros_msgs.msg import RCIn, RCOut
 from copter_model_identification.state import State, RC
 from nav_msgs.msg import Odometry
+from scipy.spatial.transform import Rotation
+# import tf2_ros
+
 
 class LoggerNode(Node):
 
@@ -12,8 +14,9 @@ class LoggerNode(Node):
         self.get_logger().info("Logger node created")
 
         self.curr_state = State() # current copter state
-        self.curr_rc_in = RC()  # control from RC
-        self.curr_rc_out = RC() # control from motors
+        self.curr_rc_in = RC()    # control from RC
+        self.curr_rc_out = RC()   # control from motors
+        self.dt = 0.02            # sec
 
         odom_qos_profile = QoSProfile(
             reliability=QoSReliabilityPolicy.BEST_EFFORT,
@@ -34,27 +37,25 @@ class LoggerNode(Node):
             "/mavros/rc/out",
             self.rc_out_callback, 10)
 
+        self.timer = self.create_timer(self.dt, self.save_data)
+
         # prevent unused variable warning
         self.odom_sub
         self.rc_in_sub
         self.rc_out_sub
 
-    def fill_table(self):
-        pass
-    
+    def save_data(self):
+        self.get_logger().info("save data")
+        self.get_logger().info("{} {} {}".format(self.curr_state.to_string(), self.curr_rc_in.to_string(), self.curr_rc_out.to_string()))
+
     def odom_callback(self, odom_msg) -> None:
-        self.get_logger().info("odom_callback")
-        # self.get_logger().info("{}".format(odom_msg.header.stamp.nanosec))
         self.curr_state.from_odom(odom_msg)
-        self.get_logger().info(self.curr_state.to_string())
 
     def rc_in_callback(self, rc_in_msg) -> None:
         self.get_logger().info("rc_in_callback")
-        # self.get_logger().info("{}".format(rc_in_msg.header.stamp.nanosec))
-        # self.get_logger().info("{}".format(rc_in_msg.channels[0:4]))
+        self.curr_rc_in.from_rc_msg(rc_in_msg)
     
     def rc_out_callback(self, rc_out_msg) -> None:
         self.get_logger().info("rc_out_callback")
-        # self.get_logger().info("{}".format(rc_out_msg.header.stamp.nanosec))
-        # self.get_logger().info("{}".format(rc_out_msg.channels[0:4]))
+        self.curr_rc_out.from_rc_msg(rc_out_msg)
     
