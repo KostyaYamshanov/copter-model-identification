@@ -4,7 +4,6 @@ import rclpy
 from mavros_msgs.msg import RCIn, RCOut, State
 from copter_model_identification.state import DroneState, RC, Timer
 from nav_msgs.msg import Odometry
-from scipy.spatial.transform import Rotation
 # import tf2_ros
 
 

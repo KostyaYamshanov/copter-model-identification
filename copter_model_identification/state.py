@@ -1,6 +1,8 @@
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Vector3
 from rclpy.clock import Clock
+from scipy.spatial.transform import Rotation
+import numpy as np
 
 class Timer:
     def __init__(self) -> None:
@@ -56,8 +58,17 @@ class DroneState():
         return position
     
     def rpy_from_odom(self, odom : Odometry) -> Vector3:
-        # TODO
+        orient = Rotation.from_quat([
+            np.float(odom.pose.pose.orientation.x),
+            np.float(odom.pose.pose.orientation.y),
+            np.float(odom.pose.pose.orientation.z),
+            np.float(odom.pose.pose.orientation.w)]
+        ).as_euler('xyz')
+        
         rpy = Vector3()
+        rpy.x = orient[0]
+        rpy.y = orient[1]
+        rpy.z = orient[2]
         return rpy
 
     def from_odom(self, odom) -> None:
