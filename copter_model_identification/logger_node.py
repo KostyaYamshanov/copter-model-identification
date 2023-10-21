@@ -56,6 +56,8 @@ class LoggerNode(Node):
         self.rc_out_sub
         self.save_data_timer
 
+        rclpy.get_default_context().on_shutdown(self.on_shutdown)
+
     def save_data(self) -> None:
         if (self.is_armed):
             time = self.timer.get_time()
@@ -73,16 +75,16 @@ class LoggerNode(Node):
     
     def state_callback(self, state_msg) -> None:
         # First Arm
-        if (not self.is_armed and state_msg.armed):
+        if ((not self.is_armed) and state_msg.armed):
             self.timer.update_initial()
             self.timer.update_current()
             self.is_armed = state_msg.armed
         
         #  Disarm
-        if (self.is_armed and not state_msg.armed):
-            # TODO STOP LOGGER
+        if (self.is_armed and (not state_msg.armed)):
             self.is_armed = state_msg.armed
+            raise SystemExit
 
     def on_shutdown(self):
-        self.get_logger().info("Logger shutdown!")
+        self.get_logger().warn("Logger node shutdown!")
         self.data.close()

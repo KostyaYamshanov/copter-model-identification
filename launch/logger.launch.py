@@ -1,3 +1,4 @@
+import os
 from launch import LaunchDescription
 from launch_ros.actions import Node
 
@@ -15,18 +16,23 @@ def generate_launch_description():
         "plugin_allowlist": plugins,
         "heartbeat_mav_type": "GCS"
     }]
+    ld = LaunchDescription()
 
-    return LaunchDescription([
-        Node(
+    ld.add_action(Node(
             package='copter_model_identification',
             executable='logger',
-            name='logger'
-        ),
-        Node(
-            package='mavros',
-            executable='mavros_node',
-            respawn=True,
-            output='screen',
-            parameters=mavros_params
+            name='logger')
         )
-    ])
+    
+    # Mavros is optional
+    if ("/mavros" not in os.popen("ros2 node list").read()):
+        ld.add_action(Node(
+                package='mavros',
+                executable='mavros_node',
+                respawn=True,
+                output='screen',
+                parameters=mavros_params)
+            )
+    
+    return ld 
+        
